@@ -1,14 +1,13 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
+import CurrencyInput from '@/components/CurrencyInput.vue'
 
-// costs
 const years = ref(10),
-	initialCost = ref(0.00),
-	electricityCost = ref(0.00),
-	internetCost = ref(0.00),
-	maintenanceCost = ref(0.00),
-	otherCost = ref(0.00),
+	currency=ref('usd'),
+	// costs
+	initialCost = ref(400.00),
+	maintenanceCost = ref(10.00),
 	// storage node
 	totalStorage = ref(20.00),
 	// pricing
@@ -17,7 +16,7 @@ const years = ref(10),
 	egressPricing = ref(0.00),
 	collateralRatio = ref(2.00),
 	// usage
-	ingressUsage = ref(5.00),
+	ingressUsage = ref(2.00),
 	egressUsage = ref(0.00),
 
 	chartSeries = ref([{ data: [] }, { data: [] }]),
@@ -54,14 +53,13 @@ const years = ref(10),
 		yaxis: {
 			labels: {
 				formatter: function (value) {
-					return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+					return new Intl.NumberFormat([], { style: 'currency', currency: currency.value }).format(value);
 				}
 			}
 		}
 	};
 
 function generateChart() {
-	console.log('Generating chart...');
 	let storageUsage = 0,
 		totalRevenue = 0,
 		totalCollateral = 0,
@@ -98,7 +96,7 @@ function generateChart() {
 
 		totalRevenue += (storageUsage * storagePricing.value) + (ingress * ingressPricing.value) + (egressUsage.value * egressPricing.value),
 			totalCollateral += (ingress * collateralRatio.value * storagePricing.value),
-			totalCost += electricityCost.value + internetCost.value + maintenanceCost.value + otherCost.value;
+			totalCost += maintenanceCost.value;
 
 		series[0].data.push(totalRevenue)
 		series[1].data.push(totalCollateral);
@@ -113,7 +111,7 @@ onMounted(async () => {
 	await generateChart();
 });
 
-watch([years, initialCost, electricityCost, internetCost, maintenanceCost, otherCost, totalStorage, storagePricing, collateralRatio, ingressPricing, egressPricing, ingressUsage, egressUsage], generateChart);
+watch([years, currency, initialCost, maintenanceCost, totalStorage, storagePricing, collateralRatio, ingressPricing, egressPricing, ingressUsage, egressUsage], generateChart);
 </script>
 
 <template>
@@ -123,40 +121,27 @@ watch([years, initialCost, electricityCost, internetCost, maintenanceCost, other
 				<VueApexCharts :options="chartOpts" height="100%" width="100%" :series="chartSeries" />
 			</div>
 			<form class="bg-zinc-300 p-2 md:rounded-md md:shadow-md">
+				<label for="currencySelect" class="block text-sm font-medium leading-6 text-gray-900">Currency</label>
+				<select id="currencySelect" v-model="currency" class="form-input mt-1 mb-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+					<option value="usd">USD</option>
+					<option value="eur">EUR</option>
+					<option value="chf">CHF</option>
+					<option value="gbp">GBP</option>
+					<option value="kwd">KWD</option>
+					<option value="jpy">JPY</option>
+				</select>
 				<div class="border-b border-gray-900/10 mb-4 pb-4 gap-2">
 					<h2 class="text-base font-semibold leading-7 text-gray-900">Costs</h2>
 					<div class="flex gap-2">
 						<div class="flex-1">
 							<label for="initialCost" class="block text-sm font-medium leading-6 text-gray-900">Initial</label>
-							<input id="initialCost" type="text"
-								class="form-input mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-								placehold="0.00" v-model.number="initialCost">
-						</div>
-						<div class="flex-1">
-							<label for="electricityCost" class="block text-sm font-medium leading-6 text-gray-900">Electricity (per month)</label>
-							<input id="electricityCost" type="text"
-								class="form-input mt-1 mb-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-								placehold="0.00" v-model.number="electricityCost">
-						</div>
-					</div>
-					<div class="flex gap-2">
-						<div class="flex-1">
-							<label for="internetCost" class="block text-sm font-medium leading-6 text-gray-900">Internet (per month)</label>
-							<input id="internetCost" type="text"
-								class="form-input mt-1 mb-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-								placehold="0.00" v-model.number="internetCost">
+							<CurrencyInput :currency="currency" id="initialCost" type="text" class="form-input mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" placehold="0.00" v-model.number="initialCost"/>
 						</div>
 						<div class="flex-1">
 							<label for="maintenanceCost" class="block text-sm font-medium leading-6 text-gray-900">Maintenance (per month)</label>
-							<input id="maintenanceCost" type="text"
+							<CurrencyInput :currency="currency" id="maintenanceCost" type="text"
 								class="form-input mt-1 mb-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-								placehold="0.00" v-model.number="maintenanceCost">
-						</div>
-						<div class="flex-1">
-						<label for="otherCost" class="block text-sm font-medium leading-6 text-gray-900">Other (per month)</label>
-						<input id="otherCost" type="text"
-							class="form-input mt-1 mb-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-							placehold="0.00" v-model.number="otherCost">
+								placehold="0.00" v-model.number="maintenanceCost"/>
 						</div>
 					</div>
 				</div>
@@ -165,21 +150,21 @@ watch([years, initialCost, electricityCost, internetCost, maintenanceCost, other
 					<div class="flex gap-2">
 						<div class="flex-1">
 							<label for="totalStorage" class="block text-sm font-medium leading-6 text-gray-900">Total Storage (TB)</label>
-							<input id="totalStorage" type="text"
+							<CurrencyInput :currency="currency" id="totalStorage" type="text"
 							class="form-input mt-1 mb-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-							placehold="0.00" v-model.number="totalStorage">
+							placehold="0.00" v-model.number="totalStorage"/>
 						</div>
 						<div class="flex-1">
 								<label for="ingressUsage" class="block text-sm font-medium leading-6 text-gray-900">Ingress (TB/month)</label>
-							<input id="ingressUsage" type="text"
+							<CurrencyInput :currency="currency" id="ingressUsage" type="text"
 								class="form-input mt-1 mb-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-								placehold="0.00" v-model.number="ingressUsage">
+								placehold="0.00" v-model.number="ingressUsage"/>
 						</div>
 						<div class="flex-1">
 							<label for="egressUsage" class="block text-sm font-medium leading-6 text-gray-900">Egress (TB/month)</label>
-							<input id="egressUsage" type="text"
+							<CurrencyInput :currency="currency" id="egressUsage" type="text"
 								class="form-input mt-1 mb-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-								placehold="0.00" v-model.number="egressUsage">
+								placehold="0.00" v-model.number="egressUsage"/>
 						</div>
 					</div>
 				</div>
@@ -187,27 +172,27 @@ watch([years, initialCost, electricityCost, internetCost, maintenanceCost, other
 				<div class="flex gap-2">
 					<div class="flex-1">
 						<label for="storagePrice" class="block text-sm font-medium leading-6 text-gray-900">Storage (TB/month)</label>
-						<input id="storagePrice" type="text"
+						<CurrencyInput id="storagePrice" type="text"
 							class="form-input mt-1 mb-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-							placehold="0.00" v-model.number="storagePricing">
+							placehold="0.00" v-model.number="storagePricing"/>
 					</div>
 					<div class="flex-1">
 						<label for="collateralRatio" class="block text-sm font-medium leading-6 text-gray-900">Collateral ratio</label>
-						<input id="collateralRatio" type="text"
+						<CurrencyInput id="collateralRatio" type="text"
 							class="form-input mt-1 mb-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-							placehold="2.00" v-model.number="collateralRatio">
+							placehold="2.00" v-model.number="collateralRatio"/>
 					</div>
 					<div class="flex-1">
 						<label for="ingressPrice" class="block text-sm font-medium leading-6 text-gray-900">Ingress (per TB)</label>
-						<input id="ingressPrice" type="text"
+						<CurrencyInput id="ingressPrice" type="text"
 							class="form-input mt-1 mb-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-							placehold="0.00" v-model.number="ingressPricing">
+							placehold="0.00" v-model.number="ingressPricing"/>
 					</div>
 					<div class="flex-1">
 						<label for="egressPrice" class="block text-sm font-medium leading-6 text-gray-900">Egress (per TB)</label>
-						<input id="egressPrice" type="text"
+						<CurrencyInput id="egressPrice" type="text"
 							class="form-input mt-1 mb-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-							placehold="0.00" v-model.number="egressPricing">
+							placehold="0.00" v-model.number="egressPricing"/>
 					</div>
 				</div>
 			</form>
