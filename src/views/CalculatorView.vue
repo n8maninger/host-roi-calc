@@ -118,7 +118,7 @@ function generateChart() {
 			totalCost += maintenanceCost.value;
 
 		if (totalRevenue >= totalCost && breakEven === -1)
-			breakEven = i-1;
+			breakEven = i;
 
 		series[0].data.push(totalCollateral);
 		series[1].data.push(totalCost);
