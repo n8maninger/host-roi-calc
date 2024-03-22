@@ -214,25 +214,25 @@ watch([currency, initialCost, maintenanceCost, totalStorage, storagePricing, col
 				<div class="flex gap-2">
 					<div class="flex-1">
 						<label for="storagePrice" class="block text-sm font-medium leading-6 text-gray-900">Storage (TB/month)</label>
-						<CurrencyInput id="storagePrice" type="text"
+						<CurrencyInput :currency="currency" id="storagePrice" type="text"
 							class="form-input mt-1 mb-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
 							placehold="0.00" v-model.number="storagePricing"/>
 					</div>
 					<div class="flex-1">
 						<label for="collateralRatio" class="block text-sm font-medium leading-6 text-gray-900">Collateral ratio</label>
-						<CurrencyInput id="collateralRatio" type="text"
+						<input id="collateralRatio" type="text"
 							class="form-input mt-1 mb-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
 							placehold="2.00" v-model.number="collateralRatio"/>
 					</div>
 					<div class="flex-1">
 						<label for="ingressPrice" class="block text-sm font-medium leading-6 text-gray-900">Ingress (per TB)</label>
-						<CurrencyInput id="ingressPrice" type="text"
+						<CurrencyInput :currency="currency" id="ingressPrice" type="text"
 							class="form-input mt-1 mb-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
 							placehold="0.00" v-model.number="ingressPricing"/>
 					</div>
 					<div class="flex-1">
 						<label for="egressPrice" class="block text-sm font-medium leading-6 text-gray-900">Egress (per TB)</label>
-						<CurrencyInput id="egressPrice" type="text"
+						<CurrencyInput :currency="currency" id="egressPrice" type="text"
 							class="form-input mt-1 mb-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
 							placehold="0.00" v-model.number="egressPricing"/>
 					</div>
